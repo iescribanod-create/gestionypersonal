@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Jornadas, Tarifas y Liquidaciones v5.2</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #18bc9c;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #dcdde1;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+        }
+
+        /* Sistema de Pestañas */
+        .tabs-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Layouts */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .grid-3-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 992px) {
+            .grid-layout, .grid-3-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            border-bottom: 2px solid #f1f2f6;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            text-align: center;
+        }
+
+        .btn:hover { background-color: #1a252f; }
+        .btn-accent { background-color: var(--accent-color); }
+        .btn-accent:hover { background-color: #128f76; }
+        .btn-secondary { background-color: #7f8c8d; }
+        .btn-secondary:hover { background-color: #6c7a7d; }
+        .btn-info { background-color: #2980b9; }
+        .btn-info:hover { background-color: #2471a3; }
+
+        /* Contenedores de tabla con Scroll e Inmovilización de cabeceras */
+        .table-container {
+            margin-top: 15px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 0.9rem;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Cabecera Fija (Sticky) */
+        table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        table tr:hover { background-color: #f8f9fa; }
+
+        .badge {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge-contratado { background-color: #d1ecf1; color: #0c5460; }
+        .badge-externo { background-color: #fff3cd; color: #856404; }
+        .badge-pendiente { background-color: #fce4d6; color: #c65911; }
+        .badge-liquidada { background-color: #e2efda; color: #375623; }
+
+        .no-data {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 15px;
+            font-style: italic;
+        }
+        
+        .resumen-caja {
+            background: #f1f2f6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .resumen-caja span {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 20px;
+        }
+
+        .chk-col {
+            text-align: center;
+            width: 40px;
+        }
+        
+        .row-eliminable {
+            cursor: cell;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Control de Jornadas, Tarifas y Liquidaciones</h1>
+    </header>
+
+    <nav class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-jornadas')">📅 Jornadas e Imputación</button>
+        <button class="tab-btn" onclick="switchTab('tab-personal')">👥 Gestión de Personal</button>
+        <button class="tab-btn" onclick="switchTab('tab-liquidaciones')">💰 Liquidaciones y Recibos</button>
+    </nav>
+
+    <div id="tab-jornadas" class="tab-content active">
+        <div class="card">
+            <h2>1. Imputación de Horas Realizadas</h2>
+            <form id="form-horas">
+                <div class="grid-3-col">
+                    <div class="form-group">
+                        <label for="fecha-jornada">Fecha</label>
+                        <input type="date" id="fecha-jornada" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="select-trabajador">Trabajador</label>
+                        <select id="select-trabajador" class="form-control" required>
+                            <option value="">-- Seleccione --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="label-tarifa-informativa" style="color: #7f8c8d; font-weight: normal; margin-top: 22px; display: block; font-size: 0.9rem;">Tarifa aplicable: —</label>
+                    </div>
+                </div>
+
+                <div class="grid-3-col" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 10px;">
+                    <div class="form-group">
+                        <label for="hora-entrada">Hora Entrada</label>
+                        <input type="time" id="hora-entrada" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hora-salida">Hora Salida</label>
+                        <input type="time" id="hora-salida" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <button type="submit" class="btn">Grabar Jornada</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Últimos Registros del Historial (Vista Rápida)</h2>
+            <p style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px;">💡 *Tip: Si te has equivocado en una jornada, haz <strong>doble clic</strong> sobre el nombre del trabajador para borrar la línea.*</p>
+            <div class="table-container">
+                <table id="tabla-horas">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Trabajador (Tipo)</th>
+                            <th>Entrada/Salida</th>
+                            <th>Horas</th>
+                            <th>Tarifa</th>
+                            <th>Importe</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-personal" class="tab-content">
+        <div class="grid-layout">
+            <div>
+                <div class="card">
+                    <h2>Alta / Modificación de Tarifas</h2>
+                    <form id="form-trabajador">
+                        <div class="form-group">
+                            <label for="nombre-trabajador">Nombre Completo</label>
+                            <input type="text" id="nombre-trabajador" class="form-control" placeholder="Ej. Juan Pérez" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo-trabajador">Tipo de Contratación</label>
+                            <select id="tipo-trabajador" class="form-control" required>
+                                <option value="Contratado">Contratado (Interno)</option>
+                                <option value="Externo">Externo (Subcontrata)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="precio-hora">Tarifa (€/Hora)</label>
+                            <input type="number" id="precio-hora" class="form-control" step="0.01" min="0" placeholder="Ej. 10.50" required>
+                        </div>
+                        <button type="submit" class="btn btn-accent">Guardar Ficha / Tarifa</button>
+                    </form>
+                </div>
+            </div>
+            <div>
+                <div class="card">
+                    <h2>Lista de Personal y Tarifas Vigentes</h2>
+                    <div class="table-container">
+                        <table id="tabla-personal">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tipo de Contrato</th>
+                                    <th>Tarifa Activa</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🗄️ Copias de Seguridad y Herramientas</h2>
+            <div class="grid-3-col" style="margin-top: 10px;">
+                <div>
+                    <button type="button" id="btn-exportar-backup" class="btn btn-info">💾 Guardar Copia Seguridad (JSON)</button>
+                </div>
+                <div>
+                    <label class="btn btn-secondary" style="display:block; cursor:pointer;">
+                        📂 Restaurar Copia Seguridad
+                        <input type="file" id="input-importar-backup" accept=".json" style="display:none;">
+                    </label>
+                </div>
+                <div>
+                    <p style="font-size:0.85rem; color:#7f8c8d; line-height:1.4;">Use estas opciones para salvaguardar sus datos completos o transferirlos a otro equipo informático.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-liquidaciones" class="tab-content">
+        <div class="card">
+            <h2>Cierre Económico e Informe de Fechas</h2>
+            <div class="grid-3-col" style="margin-bottom: 15px;">
+                <div class="form-group">
+                    <label for="liq-trabajador">Filtrar por Trabajador</label>
+                    <select id="liq-trabajador" class="form-control">
+                        <option value="">-- Todos los trabajadores --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="liq-desde">Fecha Desde</label>
+                    <input type="date" id="liq-desde" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="liq-hasta">Fecha Hasta</label>
+                    <input type="date" id="liq-hasta" class="form-control">
+                </div>
+            </div>
+            
+            <div class="grid-3-col" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 15px; align-items: center;">
+                <div class="resumen-caja" id="resumen-valores" style="margin-bottom:0;">
+                    <span>Horas: <strong id="res-horas">0.00 h</strong></span>
+                    <span>Total: <strong id="res-importe">0.00 €</strong></span>
+                </div>
+                <div>
+                    <button type="button" id="btn-marcar-liquidado" class="btn btn-accent">✓ Liquidar Seleccionadas</button>
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <button type="button" id="btn-imprimir-recibo" class="btn btn-secondary" style="flex:1;">🖨️ Recibo Simple</button>
+                    <button type="button" id="btn-exportar-excel" class="btn btn-info" style="flex:1;">📊 Excel (CSV)</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="tabla-liquidaciones">
+                    <thead>
+                        <tr>
+                            <th class="chk-col"><input type="checkbox" id="chk-master"></th>
+                            <th>Fecha</th>
+                            <th>Trabajador</th>
+                            <th>Horas</th>
+                            <th>Precio/H</th>
+                            <th>Subtotal</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let listaTrabajadores = JSON.parse(localStorage.getItem('trabajadores_v2')) || [];
+    let registroHoras = JSON.parse(localStorage.getItem('horas_v2')) || [];
+    let filtradosActuales = [];
+
+    const formTrabajador = document.getElementById('form-trabajador');
+    const formHoras = document.getElementById('form-horas');
+    const selectTrabajador = document.getElementById('select-trabajador');
+    const liqTrabajador = document.getElementById('liq-trabajador');
+    const labelTarifa = document.getElementById('label-tarifa-informativa');
+    
+    const fDesde = document.getElementById('liq-desde');
+    const fHasta = document.getElementById('liq-hasta');
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setFechaHoyInput();
+        
+        const hoy = new Date();
+        fDesde.value = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
+        fHasta.value = hoy.toISOString().split('T')[0];
+
+        actualizarTodo();
+        
+        [liqTrabajador, fDesde, fHasta].forEach(elem => {
+            elem.addEventListener('change', procesarLiquidacion);
+        });
+        
+        selectTrabajador.addEventListener('change', mostrarTarifaVigenteAlVuelo);
+        document.getElementById('fecha-jornada').addEventListener('change', mostrarTarifaVigenteAlVuelo);
+    });
+
+    function setFechaHoyInput() {
+        document.getElementById('fecha-jornada').value = new Date().toISOString().split('T')[0];
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    formTrabajador.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nombre = document.getElementById('nombre-trabajador').value.trim();
+        const tipo = document.getElementById('tipo-trabajador').value;
+        const precio = parseFloat(document.getElementById('precio-hora').value);
+        const hoyIso = new Date().toISOString().split('T')[0];
+
+        let index = listaTrabajadores.findIndex(t => t.nombre.toLowerCase() === nombre.toLowerCase());
+
+        if (index > -1) {
+            listaTrabajadores[index].tipo = tipo;
+            listaTrabajadores[index].tarifas.push({ fechaCambio: hoyIso, precio: precio });
+            alert(`Ficha actualizada para ${nombre}. Nueva tarifa configurada.`);
+        } else {
+            listaTrabajadores.push({
+                nombre,
+                tipo,
+                tarifas: [{ fechaCambio: '1970-01-01', precio: precio }]
+            });
+            alert(`Trabajador ${nombre} dado de alta.`);
+        }
+
+        localStorage.setItem('trabajadores_v2', JSON.stringify(listaTrabajadores));
+        formTrabajador.reset();
+        actualizarTodo();
+    });
+
+    formHoras.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fecha = document.getElementById('fecha-jornada').value;
+        const nombreTrabajador = selectTrabajador.value;
+        const entrada = document.getElementById('hora-entrada').value;
+        const salida = document.getElementById('hora-salida').value;
+
+        if(!nombreTrabajador) return;
+
+        const tInfo = listaTrabajadores.find(t => t.nombre === nombreTrabajador);
+        const tarifa = buscarTarifaPorFecha(tInfo, fecha);
+        const horas = calcularDiferenciaHorasNocturnas(entrada, salida);
+        const importe = horas * tarifa;
+
+        registroHoras.push({
+            id: Date.now() + Math.random().toString(36).substr(2, 5),
+            fecha,
+            trabajador: nombreTrabajador,
+            tipo: tInfo.tipo,
+            entrada,
+            salida,
+            totalHoras: horas.toFixed(2),
+            tarifaAplicada: tarifa.toFixed(2),
+            importe: importe.toFixed(2),
+            liquidada: false,
+            fechaPago: ''
+        });
+
+        localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
+        
+        formHoras.reset();
+        setFechaHoyInput(); 
+        labelTarifa.textContent = "Tarifa aplicable: —";
+        
+        actualizarTodo();
+    });
+
+    function buscarTarifaPorFecha(trabajador, fechaBusqueda) {
+        let historico = [...trabajador.tarifas].sort((a,b) => a.fechaCambio.localeCompare(b.fechaCambio));
+        let tarifaAplicable = historico[0].precio;
+        for(let t of historico) {
+            if(fechaBusqueda >= t.fechaCambio) {
+                tarifaAplicable = t.precio;
+            } else {
+                break;
+            }
+        }
+        return tarifaAplicable;
+    }
+
+    function mostrarTarifaVigenteAlVuelo() {
+        const nombre = selectTrabajador.value;
+        const fecha = document.getElementById('fecha-jornada').value;
+        if(!nombre || !fecha) {
+            labelTarifa.textContent = "Tarifa aplicable: —";
+            return;
+        }
+        const tInfo = listaTrabajadores.find(t => t.nombre === nombre);
+        const tarifa = buscarTarifaPorFecha(tInfo, fecha);
+        labelTarifa.innerHTML = `Tarifa en esta fecha: <strong>${tarifa.toFixed(2)} €/h</strong>`;
+    }
+
+    function calcularDiferenciaHorasNocturnas(start, end) {
+        const [hStart, mStart] = start.split(':').map(Number);
+        const [hEnd, mEnd] = end.split(':').map(Number);
+        let dStart = new Date(0, 0, 0, hStart, mStart);
+        let dEnd = new Date(0, 0, 0, hEnd, mEnd);
+        if (dEnd < dStart) dEnd.setDate(dEnd.getDate() + 1);
+        return (dEnd - dStart) / (1000 * 60 * 60);
+    }
+
+    function actualizarTodo() {
+        actualizarSelectores();
+        renderTablasBase();
+        procesarLiquidacion();
+    }
+
+    function actualizarSelectores() {
+        const selPrevia = selectTrabajador.value;
+        const liqPrevia = liqTrabajador.value;
+
+        selectTrabajador.innerHTML = '<option value="">-- Seleccione --</option>';
+        liqTrabajador.innerHTML = '<option value="">-- Todos los trabajadores --</option>';
+
+        listaTrabajadores.forEach(t => {
+            const ultimaTarifa = t.tarifas[t.tarifas.length - 1].precio;
+            let opt = document.createElement('option');
+            opt.value = t.nombre;
+            opt.textContent = `${t.nombre} [${t.tipo}] (${ultimaTarifa.toFixed(2)}€/h)`;
+            selectTrabajador.appendChild(opt.cloneNode(true));
+            liqTrabajador.appendChild(opt);
+        });
+
+        selectTrabajador.value = selPrevia;
+        liqTrabajador.value = liqPrevia;
+    }
+
+    function renderTablasBase() {
+        const tbodyPers = document.querySelector('#tabla-personal tbody');
+        tbodyPers.innerHTML = '';
+        if(listaTrabajadores.length === 0) {
+            tbodyPers.innerHTML = '<tr><td colspan="3" class="no-data">Sin personal activo</td></tr>';
+        } else {
+            listaTrabajadores.forEach(t => {
+                const badgeClass = t.tipo === 'Contratado' ? 'badge-contratado' : 'badge-externo';
+                const ultTarifa = t.tarifas[t.tarifas.length - 1].precio;
+                tbodyPers.insertAdjacentHTML('beforeend', `<tr>
+                    <td><strong>${t.nombre}</strong></td>
+                    <td><span class="badge ${badgeClass}">${t.tipo}</span></td>
+                    <td><strong>${ultTarifa.toFixed(2)} €</strong></td>
+                </tr>`);
+            });
+        }
+
+        const tbodyHoras = document.querySelector('#tabla-horas tbody');
+        tbodyHoras.innerHTML = '';
+        if(registroHoras.length === 0) {
+            tbodyHoras.innerHTML = '<tr><td colspan="7" class="no-data">No se registran jornadas</td></tr>';
+        } else {
+            [...registroHoras].reverse().slice(0, 15).forEach(h => {
+                const badgeTipo = h.tipo === 'Contratado' ? 'badge-contratado' : 'badge-externo';
+                const badgeLiq = h.liquidada ? 'badge-liquidada' : 'badge-pendiente';
+                const txtLiq = h.liquidada ? (h.fechaPago ? `Liquidada (${h.fechaPago})` : 'Liquidada') : 'Pendiente';
+                const fEs = h.fecha.split('-').reverse().join('/');
+
+                tbodyHoras.insertAdjacentHTML('beforeend', `<tr>
+                    <td>${fEs}</td>
+                    <td class="row-eliminable" title="Doble clic para borrar" data-delete-id="${h.id}">
+                        <strong>${h.trabajador}</strong> <span class="badge ${badgeTipo}">${h.tipo}</span>
+                    </td>
+                    <td>${h.entrada} - ${h.salida}</td>
+                    <td><strong>${h.totalHoras} h</strong></td>
+                    <td>${h.tarifaAplicada} €</td>
+                    <td><strong>${h.importe} €</strong></td>
+                    <td><span class="badge ${badgeLiq}">${txtLiq}</span></td>
+                </tr>`);
+            });
+        }
+        vincularEventosDobleClic();
+    }
+
+    function vincularEventosDobleClic() {
+        document.querySelectorAll('.row-eliminable').forEach(celda => {
+            celda.addEventListener('dblclick', function() {
+                const idRegistro = this.getAttribute('data-delete-id');
+                eliminarRegistroLinea(idRegistro);
+            });
+        });
+    }
+
+    function eliminarRegistroLinea(id) {
+        const pin = prompt("🔐 Introduzca la clave de seguridad para eliminar esta jornada:");
+        if (pin === null) return; 
+
+        if (pin === "1234") {
+            const index = registroHoras.findIndex(h => h.id === id);
+            if (index > -1) {
+                registroHoras.splice(index, 1);
+                localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
+                alert("Línea eliminada correctamente.");
+                actualizarTodo();
+            }
+        } else {
+            alert("❌ Clave incorrecta. No se ha modificado ningún dato.");
+        }
+    }
+
+    function procesarLiquidacion() {
+        const trabFiltro = liqTrabajador.value;
+        const desde = fDesde.value;
+        const hasta = fHasta.value;
+
+        filtradosActuales = registroHoras.filter(h => {
+            const matchesTrabajador = !trabFiltro || h.trabajador === trabFiltro;
+            const matchesDesde = !desde || h.fecha >= desde;
+            const matchesHasta = !hasta || h.fecha <= hasta;
+            return matchesTrabajador && matchesDesde && matchesHasta;
+        });
+
+        let totHoras = 0;
+        let totImporte = 0;
+
+        const tbodyLiq = document.querySelector('#tabla-liquidaciones tbody');
+        tbodyLiq.innerHTML = '';
+        document.getElementById('chk-master').checked = false;
+
+        if(filtradosActuales.length === 0) {
+            tbodyLiq.innerHTML = '<tr><td colspan="7" class="no-data">Ninguna jornada en este rango</td></tr>';
+        } else {
+            filtradosActuales.forEach(h => {
+                totHoras += parseFloat(h.totalHoras);
+                totImporte += parseFloat(h.importe);
+
+                const fEs = h.fecha.split('-').reverse().join('/');
+                const badgeLiq = h.liquidada ? 'badge-liquidada' : 'badge-pendiente';
+                const txtLiq = h.liquidada ? (h.fechaPago ? `Liquidada (${h.fechaPago})` : 'Liquidada') : 'Pendiente';
+                const chkDisabled = h.liquidada ? 'disabled checked' : '';
+
+                tbodyLiq.insertAdjacentHTML('beforeend', `<tr>
+                    <td class="chk-col"><input type="checkbox" class="chk-item" data-id="${h.id}" ${chkDisabled}></td>
+                    <td>${fEs}</td>
+                    <td><strong>${h.trabajador}</strong></td>
+                    <td>${h.totalHoras} h</td>
+                    <td>${h.tarifaAplicada} €</td>
+                    <td><strong>${h.importe} €</strong></td>
+                    <td><span class="badge ${badgeLiq}">${txtLiq}</span></td>
+                </tr>`);
+            });
+        }
+
+        document.getElementById('res-horas').textContent = totHoras.toFixed(2) + ' h';
+        document.getElementById('res-importe').textContent = totImporte.toFixed(2) + ' €';
+
+        vincularManejadorChecks();
+    }
+
+    function vincularManejadorChecks() {
+        const master = document.getElementById('chk-master');
+        const items = document.querySelectorAll('.chk-item:not([disabled])');
+        master.onclick = function() {
+            items.forEach(chk => chk.checked = master.checked);
+        };
+    }
+
+    document.getElementById('btn-marcar-liquidado').onclick = function() {
+        const seleccionados = document.querySelectorAll('.chk-item:checked:not([disabled])');
+        if(seleccionados.length === 0) {
+            alert('Selecciona jornadas pendientes para marcar como liquidadas.');
+            return;
+        }
+
+        const hoy = new Date().toISOString().split('T')[0].split('-').reverse().join('/');
+        const fechaInput = prompt(`¿Marcar como liquidadas estas ${seleccionados.length} jornadas? \n\nIntroduce la fecha de pago (DD/MM/AAAA):`, hoy);
+        
+        if (fechaInput === null) return; // Cancelar acción si pulsa cancelar
+
+        const fechaPago = fechaInput.trim() || hoy;
+
+        seleccionados.forEach(chk => {
+            const idBuscar = chk.getAttribute('data-id');
+            let registro = registroHoras.find(h => h.id === idBuscar);
+            if(registro) {
+                registro.liquidada = true;
+                registro.fechaPago = fechaPago;
+            }
+        });
+        localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
+        actualizarTodo();
+    };
+
+    // RECIBO ULTRA-SIMPLE EN VENTANA INDEPENDIENTE
+    document.getElementById('btn-imprimir-recibo').onclick = function() {
+        const trabajadorSeleccionado = liqTrabajador.value;
+        if (!trabajadorSeleccionado) {
+            alert("Por favor, selecciona un trabajador específico para emitir el recibo.");
+            return;
+        }
+        if (filtradosActuales.length === 0) {
+            alert("No hay registros que imprimir.");
+            return;
+        }
+
+        let sumaHoras = 0;
+        let sumaImporte = 0;
+        let filasHtml = '';
+
+        filtradosActuales.forEach(h => {
+            sumaHoras += parseFloat(h.totalHoras);
+            sumaImporte += parseFloat(h.importe);
+            const fEs = h.fecha.split('-').reverse().join('/');
+            filasHtml += `
+                <tr>
+                    <td style="border: 1px solid #000; padding: 6px;">${fEs}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: right;">${h.totalHoras} h</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: right;">${h.tarifaAplicada} €/h</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: right; font-weight: bold;">${h.importe} €</td>
+                </tr>
+            `;
+        });
+
+        const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
+        ventanaImpresion.document.write(`
+            <html>
+            <head>
+                <title>Recibo - ${trabajadorSeleccionado}</title>
+                <style>
+                    body { font-family: monospace; padding: 20px; color: #000; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                    th { border: 1px solid #000; padding: 6px; background-color: #eee; text-align: left; }
+                </style>
+            </head>
+            <body>
+                <h2 style="margin-bottom: 5px;">RECIBO DE LIQUIDACIÓN</h2>
+                <p><strong>Trabajador:</strong> ${trabajadorSeleccionado}</p>
+                <p><strong>Fecha Emisión:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th style="text-align: right;">Horas</th>
+                            <th style="text-align: right;">Precio</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filasHtml}
+                        <tr style="background-color: #eee; font-weight: bold;">
+                            <td style="border: 1px solid #000; padding: 6px;">TOTALES:</td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: right;">${sumaHoras.toFixed(2)} h</td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: right;">${sumaImporte.toFixed(2)} €</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: 30px; text-align: center;">* Documento simplificado de control interno *</p>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        ventanaImpresion.document.close();
+    };
+
+    // EXPORTACIÓN EXCEL (FORMATO CSV)
+    document.getElementById('btn-exportar-excel').onclick = function() {
+        if (filtradosActuales.length === 0) {
+            alert("No hay datos en pantalla para exportar.");
+            return;
+        }
+
+        let csvContent = "\uFEFF"; 
+        csvContent += "Fecha;Trabajador;Horas Computadas;Precio Hora;Subtotal;Estado Actual\r\n";
+
+        filtradosActuales.forEach(h => {
+            const fEs = h.fecha.split('-').reverse().join('/');
+            const estado = h.liquidada ? (h.fechaPago ? `Liquidada (${h.fechaPago})` : "Liquidada") : "Pendiente";
+            csvContent += `${fEs};${h.trabajador};${h.totalHoras};${h.tarifaAplicada};${h.importe};${estado}\r\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Liquidacion_${liqTrabajador.value || 'General'}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // BACKUP: EXPORTAR JSON
+    document.getElementById('btn-exportar-backup').onclick = function() {
+        const dataCompleta = {
+            trabajadores: listaTrabajadores,
+            horas: registroHoras
+        };
+
+        const jsonStr = JSON.stringify(dataCompleta, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+        const downloadAnchor = document.createElement('a');
+        
+        downloadAnchor.href = URL.createObjectURL(blob);
+        downloadAnchor.setAttribute("download", `Backup_ControlHoras_${new Date().toISOString().split('T')[0]}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        document.body.removeChild(downloadAnchor);
+    };
+
+    // BACKUP: RESTAURAR JSON
+    document.getElementById('input-importar-backup').onchange = function(event) {
+        const archivo = event.target.files[0];
+        if (!archivo) return;
+
+        const lector = new FileReader();
+        lector.onload = function(e) {
+            try {
+                const dataRestaurada = JSON.parse(e.target.result);
+                if (dataRestaurada.trabajadores && dataRestaurada.horas) {
+                    if (confirm("Se van a sobrescribir todos los datos actuales con esta copia de seguridad. ¿Desea continuar?")) {
+                        listaTrabajadores = dataRestaurada.trabajadores;
+                        registroHoras = dataRestaurada.horas;
+                        
+                        localStorage.setItem('trabajadores_v2', JSON.stringify(listaTrabajadores));
+                        localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
+                        
+                        alert("Datos restaurados con éxito.");
+                        actualizarTodo();
+                    }
+                } else {
+                    alert("El archivo no tiene la estructura correcta.");
+                }
+            } catch (err) {
+                alert("Error al leer el archivo.");
+            }
+        };
+        lector.readAsText(archivo);
+    };
+</script>
+
+</body>
+</html>
