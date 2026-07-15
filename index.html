@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Jornadas, Tarifas y Liquidaciones v5.2</title>
+    <title>Gestión Integral: Contabilidad, Jornadas y Liquidaciones</title>
     <style>
         :root {
             --primary-color: #2c3e50;
             --accent-color: #18bc9c;
-            --bg-color: #f8f9fa;
-            --text-color: #333;
-            --border-color: #dcdde1;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+            --border-color: #e5e7eb;
         }
 
         * {
@@ -23,50 +24,165 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 20px;
+            background-color: #f9fafb;
+            color: var(--dark-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
+        /* --- CABECERA FIJA --- */
         header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--primary-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 10px 20px;
         }
 
-        header h1 {
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: bold;
             color: var(--primary-color);
         }
 
-        /* Sistema de Pestañas */
-        .tabs-nav {
+        .backup-buttons {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
+            gap: 8px;
         }
 
-        .tab-btn {
-            padding: 10px 20px;
-            background: #e2e8f0;
+        .btn {
+            padding: 6px 12px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: #1a252f; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-success:hover { background-color: #059669; }
+        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-warning:hover { background-color: #d97706; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-secondary { background-color: #6b7280; color: white; }
+        .btn-secondary:hover { background-color: #4b5563; }
+        .btn-accent { background-color: var(--accent-color); color: white; }
+        .btn-accent:hover { background-color: #128f76; }
+        .btn-info { background-color: #2980b9; color: white; }
+        .btn-info:hover { background-color: #2471a3; }
+
+        /* --- DASHBOARD --- */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 5px solid var(--border-color);
+            text-align: center;
+        }
+
+        .card-ingresos { border-left-color: var(--success-color); }
+        .card-gastos { border-left-color: var(--danger-color); }
+        .card-resultado { border-left-color: var(--primary-color); }
+
+        .card-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 3px;
+        }
+
+        .card-value {
+            font-size: 1.3rem;
             font-weight: bold;
-            color: var(--primary-color);
-            transition: all 0.2s ease;
+        }
+
+        .text-success { color: var(--success-color); }
+        .text-danger { color: var(--danger-color); }
+        .text-primary { color: var(--primary-color); }
+
+        /* --- FILTROS --- */
+        .filters-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .filters-container select, .filters-container input[type="date"] {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: white;
+            font-size: 0.8rem;
+        }
+
+        /* --- PESTAÑAS (TABS) --- */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab-btn {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            flex-shrink: 0;
+        }
+
+        .tab-btn:hover {
+            color: var(--accent-color);
         }
 
         .tab-btn.active {
-            background: var(--primary-color);
-            color: #fff;
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        main {
+            margin-top: 290px;
+            padding: 20px;
+            flex-grow: 1;
         }
 
         .tab-content {
@@ -77,7 +193,7 @@
             display: block;
         }
 
-        /* Layouts */
+        /* --- LAYOUT COMPLEJO --- */
         .grid-layout {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -97,16 +213,17 @@
             }
         }
 
-        .card {
-            background: #fff;
+        /* --- TARJETAS LOCALES --- */
+        .local-card {
+            background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             border: 1px solid var(--border-color);
             margin-bottom: 20px;
         }
 
-        .card h2 {
+        .local-card h2 {
             margin-bottom: 15px;
             color: var(--primary-color);
             font-size: 1.25rem;
@@ -114,95 +231,111 @@
             padding-bottom: 5px;
         }
 
+        /* --- FORMULARIOS --- */
+        .form-grid {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
         .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
             margin-bottom: 12px;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 4px;
-            font-weight: 600;
             font-size: 0.85rem;
+            font-weight: 600;
+            color: #4b5563;
         }
 
-        .form-control {
+        .form-control, .form-group input, .form-group select {
             width: 100%;
-            padding: 8px 10px;
+            padding: 8px 12px;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 0.95rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            background: white;
         }
 
-        .btn {
-            display: inline-block;
-            width: 100%;
-            padding: 10px;
-            background-color: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            text-align: center;
+        .form-control:focus, .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent-color);
         }
 
-        .btn:hover { background-color: #1a252f; }
-        .btn-accent { background-color: var(--accent-color); }
-        .btn-accent:hover { background-color: #128f76; }
-        .btn-secondary { background-color: #7f8c8d; }
-        .btn-secondary:hover { background-color: #6c7a7d; }
-        .btn-info { background-color: #2980b9; }
-        .btn-info:hover { background-color: #2471a3; }
-
-        /* Contenedores de tabla con Scroll e Inmovilización de cabeceras */
+        /* --- TABLAS --- */
         .table-container {
-            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow-x: auto;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            font-size: 0.9rem;
-        }
-
-        table th, table td {
-            padding: 10px;
             text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            background: white;
         }
 
-        /* Cabecera Fija (Sticky) */
-        table th {
-            background-color: var(--primary-color);
-            color: white;
+        th {
+            background-color: #f9fafb;
+            color: #4b5563;
+            padding: 12px 16px;
             font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 10;
         }
 
-        table tr:hover { background-color: #f8f9fa; }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+
+        /* --- BADGES / ETIQUETAS --- */
         .badge {
-            padding: 3px 6px;
-            border-radius: 4px;
+            padding: 4px 8px;
+            border-radius: 12px;
             font-size: 0.75rem;
-            font-weight: bold;
+            font-weight: 600;
             text-transform: uppercase;
         }
 
+        .badge-success { background-color: #d1fae5; color: #065f46; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+        .badge-warning { background-color: #fef3c7; color: #92400e; }
+        .badge-secondary { background-color: #e5e7eb; color: #374151; }
+        
         .badge-contratado { background-color: #d1ecf1; color: #0c5460; }
         .badge-externo { background-color: #fff3cd; color: #856404; }
         .badge-pendiente { background-color: #fce4d6; color: #c65911; }
         .badge-liquidada { background-color: #e2efda; color: #375623; }
+
+        .double-click-hint {
+            cursor: pointer;
+        }
+
+        .row-eliminable {
+            cursor: cell;
+        }
 
         .no-data {
             text-align: center;
@@ -210,688 +343,1213 @@
             padding: 15px;
             font-style: italic;
         }
-        
+
         .resumen-caja {
             background: #f1f2f6;
             padding: 15px;
             border-radius: 6px;
-            margin-bottom: 15px;
             border-left: 5px solid var(--accent-color);
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
         .resumen-caja span {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             color: var(--primary-color);
-            margin-right: 20px;
         }
 
         .chk-col {
             text-align: center;
-            width: 40px;
+            width: 45px;
         }
-        
-        .row-eliminable {
-            cursor: cell;
+
+        /* Estilos móviles */
+        @media (max-width: 768px) {
+            main { margin-top: 410px; }
+            .dashboard { grid-template-columns: 1fr; gap: 8px; }
+            .header-top { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .filters-container { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
     <header>
-        <h1>Control de Jornadas, Tarifas y Liquidaciones</h1>
+        <div class="header-top">
+            <span class="header-title">📊 Gestión Integrada S.A.</span>
+            <div class="backup-buttons">
+                <button class="btn btn-secondary" onclick="exportarExcelContable()">📥 Excel Contable</button>
+                <button class="btn btn-primary" onclick="respaldarTodo()">💾 Guardar Backup</button>
+                <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">🔌 Restaurar</button>
+                <input type="file" id="importFile" style="display:none" onchange="restaurarTodo(event)" accept=".json">
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="card card-ingresos">
+                <div class="card-title">Ventas (Ingresos)</div>
+                <div class="card-value text-success" id="dash-ingresos">0,00 €</div>
+            </div>
+            <div class="card card-gastos">
+                <div class="card-title">Gastos Contables</div>
+                <div class="card-value text-danger" id="dash-gastos">0,00 €</div>
+            </div>
+            <div class="card card-resultado">
+                <div class="card-title">Resultado Contable Neto</div>
+                <div class="card-value" id="dash-resultado">0,00 €</div>
+            </div>
+        </div>
+
+        <div class="filters-container">
+            <strong>Filtros Contabilidad:</strong>
+            <label>Desde:</label>
+            <input type="date" id="filtro-fecha-desde" onchange="actualizarTodo()">
+
+            <label>Hasta:</label>
+            <input type="date" id="filtro-fecha-hasta" onchange="actualizarTodo()">
+
+            <label>Cte/No Cte:</label>
+            <select id="filtro-corriente" onchange="actualizarTodo()">
+                <option value="todos">Todos</option>
+                <option value="corriente">Corriente</option>
+                <option value="nocorriente">No Corriente</option>
+            </select>
+
+            <label>Deducible:</label>
+            <select id="filtro-deducible" onchange="actualizarTodo()">
+                <option value="todos">Todos</option>
+                <option value="deducible">Deducible</option>
+                <option value="nodeducible">No Deducible</option>
+            </select>
+
+            <label>Estado Gasto:</label>
+            <select id="filtro-estado-gasto" onchange="actualizarTodo()">
+                <option value="todos">Todos</option>
+                <option value="Pagado">Pagado</option>
+                <option value="Pendiente">Pendiente</option>
+            </select>
+
+            <button class="btn btn-secondary" onclick="limpiarFiltrosContables()" style="padding: 2px 8px; font-size: 0.75rem;">🧹 Limpiar</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="cambiarPestana('ventas')">📈 Ventas</button>
+            <button class="tab-btn" onclick="cambiarPestana('gastos')">📉 Gastos</button>
+            <button class="tab-btn" onclick="cambiarPestana('proveedores')">🤝 Proveedores</button>
+            <button class="tab-btn" onclick="cambiarPestana('jornadas')">📅 Horas y Jornadas</button>
+            <button class="tab-btn" onclick="cambiarPestana('personal')">👥 Personal y Tarifas</button>
+            <button class="tab-btn" onclick="cambiarPestana('liquidaciones')">💰 Liquidaciones</button>
+        </div>
     </header>
 
-    <nav class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('tab-jornadas')">📅 Jornadas e Imputación</button>
-        <button class="tab-btn" onclick="switchTab('tab-personal')">👥 Gestión de Personal</button>
-        <button class="tab-btn" onclick="switchTab('tab-liquidaciones')">💰 Liquidaciones y Recibos</button>
-    </nav>
+    <main>
 
-    <div id="tab-jornadas" class="tab-content active">
-        <div class="card">
-            <h2>1. Imputación de Horas Realizadas</h2>
-            <form id="form-horas">
-                <div class="grid-3-col">
-                    <div class="form-group">
-                        <label for="fecha-jornada">Fecha</label>
-                        <input type="date" id="fecha-jornada" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="select-trabajador">Trabajador</label>
-                        <select id="select-trabajador" class="form-control" required>
-                            <option value="">-- Seleccione --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label id="label-tarifa-informativa" style="color: #7f8c8d; font-weight: normal; margin-top: 22px; display: block; font-size: 0.9rem;">Tarifa aplicable: —</label>
-                    </div>
-                </div>
-
-                <div class="grid-3-col" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 10px;">
-                    <div class="form-group">
-                        <label for="hora-entrada">Hora Entrada</label>
-                        <input type="time" id="hora-entrada" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="hora-salida">Hora Salida</label>
-                        <input type="time" id="hora-salida" class="form-control" required>
-                    </div>
-                    <div class="form-group" style="margin-top: 20px;">
-                        <button type="submit" class="btn">Grabar Jornada</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <div class="card">
-            <h2>Últimos Registros del Historial (Vista Rápida)</h2>
-            <p style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px;">💡 *Tip: Si te has equivocado en una jornada, haz <strong>doble clic</strong> sobre el nombre del trabajador para borrar la línea.*</p>
-            <div class="table-container">
-                <table id="tabla-horas">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Trabajador (Tipo)</th>
-                            <th>Entrada/Salida</th>
-                            <th>Horas</th>
-                            <th>Tarifa</th>
-                            <th>Importe</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-personal" class="tab-content">
-        <div class="grid-layout">
-            <div>
-                <div class="card">
-                    <h2>Alta / Modificación de Tarifas</h2>
-                    <form id="form-trabajador">
-                        <div class="form-group">
-                            <label for="nombre-trabajador">Nombre Completo</label>
-                            <input type="text" id="nombre-trabajador" class="form-control" placeholder="Ej. Juan Pérez" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="tipo-trabajador">Tipo de Contratación</label>
-                            <select id="tipo-trabajador" class="form-control" required>
-                                <option value="Contratado">Contratado (Interno)</option>
-                                <option value="Externo">Externo (Subcontrata)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="precio-hora">Tarifa (€/Hora)</label>
-                            <input type="number" id="precio-hora" class="form-control" step="0.01" min="0" placeholder="Ej. 10.50" required>
-                        </div>
-                        <button type="submit" class="btn btn-accent">Guardar Ficha / Tarifa</button>
-                    </form>
-                </div>
-            </div>
-            <div>
-                <div class="card">
-                    <h2>Lista de Personal y Tarifas Vigentes</h2>
-                    <div class="table-container">
-                        <table id="tabla-personal">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Tipo de Contrato</th>
-                                    <th>Tarifa Activa</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>🗄️ Copias de Seguridad y Herramientas</h2>
-            <div class="grid-3-col" style="margin-top: 10px;">
-                <div>
-                    <button type="button" id="btn-exportar-backup" class="btn btn-info">💾 Guardar Copia Seguridad (JSON)</button>
-                </div>
-                <div>
-                    <label class="btn btn-secondary" style="display:block; cursor:pointer;">
-                        📂 Restaurar Copia Seguridad
-                        <input type="file" id="input-importar-backup" accept=".json" style="display:none;">
-                    </label>
-                </div>
-                <div>
-                    <p style="font-size:0.85rem; color:#7f8c8d; line-height:1.4;">Use estas opciones para salvaguardar sus datos completos o transferirlos a otro equipo informático.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-liquidaciones" class="tab-content">
-        <div class="card">
-            <h2>Cierre Económico e Informe de Fechas</h2>
-            <div class="grid-3-col" style="margin-bottom: 15px;">
+        <!-- PESTAÑA: VENTAS -->
+        <section id="tab-ventas" class="tab-content active">
+            <form id="form-ventas" class="form-grid" onsubmit="agregarVenta(event)">
                 <div class="form-group">
-                    <label for="liq-trabajador">Filtrar por Trabajador</label>
-                    <select id="liq-trabajador" class="form-control">
-                        <option value="">-- Todos los trabajadores --</option>
+                    <label>Fecha</label>
+                    <input type="date" id="venta-fecha" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Venta</label>
+                    <select id="venta-tipo">
+                        <option value="General" selected>General</option>
+                        <option value="Celebración">Celebración</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="liq-desde">Fecha Desde</label>
-                    <input type="date" id="liq-desde" class="form-control">
+                    <label>Nº Factura</label>
+                    <input type="text" id="venta-factura" placeholder="Ej: F2026-001" required>
                 </div>
                 <div class="form-group">
-                    <label for="liq-hasta">Fecha Hasta</label>
-                    <input type="date" id="liq-hasta" class="form-control">
+                    <label>Medio de Pago</label>
+                    <select id="venta-metodo">
+                        <option value="Efectivo" selected>Efectivo</option>
+                        <option value="Visa">Visa</option>
+                        <option value="Otros">Otros</option>
+                    </select>
                 </div>
-            </div>
-            
-            <div class="grid-3-col" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 15px; align-items: center;">
-                <div class="resumen-caja" id="resumen-valores" style="margin-bottom:0;">
-                    <span>Horas: <strong id="res-horas">0.00 h</strong></span>
-                    <span>Total: <strong id="res-importe">0.00 €</strong></span>
+                <div class="form-group">
+                    <label>Importe (€)</label>
+                    <input type="number" step="0.01" id="venta-importe" placeholder="0.00" required>
                 </div>
-                <div>
-                    <button type="button" id="btn-marcar-liquidado" class="btn btn-accent">✓ Liquidar Seleccionadas</button>
+                <div class="form-group">
+                    <label>Clasificación</label>
+                    <select id="venta-corriente">
+                        <option value="Corriente" selected>Corriente</option>
+                        <option value="No Corriente">No Corriente</option>
+                    </select>
                 </div>
-                <div style="display:flex; gap:5px;">
-                    <button type="button" id="btn-imprimir-recibo" class="btn btn-secondary" style="flex:1;">🖨️ Recibo Simple</button>
-                    <button type="button" id="btn-exportar-excel" class="btn btn-info" style="flex:1;">📊 Excel (CSV)</button>
-                </div>
-            </div>
+                <button type="submit" class="btn btn-success" style="width: 100%; height: 38px;">Añadir Venta</button>
+            </form>
 
             <div class="table-container">
-                <table id="tabla-liquidaciones">
-                    <thead>
-                        <tr>
-                            <th class="chk-col"><input type="checkbox" id="chk-master"></th>
-                            <th>Fecha</th>
-                            <th>Trabajador</th>
-                            <th>Horas</th>
-                            <th>Precio/H</th>
-                            <th>Subtotal</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    let listaTrabajadores = JSON.parse(localStorage.getItem('trabajadores_v2')) || [];
-    let registroHoras = JSON.parse(localStorage.getItem('horas_v2')) || [];
-    let filtradosActuales = [];
-
-    const formTrabajador = document.getElementById('form-trabajador');
-    const formHoras = document.getElementById('form-horas');
-    const selectTrabajador = document.getElementById('select-trabajador');
-    const liqTrabajador = document.getElementById('liq-trabajador');
-    const labelTarifa = document.getElementById('label-tarifa-informativa');
-    
-    const fDesde = document.getElementById('liq-desde');
-    const fHasta = document.getElementById('liq-hasta');
-
-    window.addEventListener('DOMContentLoaded', () => {
-        setFechaHoyInput();
-        
-        const hoy = new Date();
-        fDesde.value = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
-        fHasta.value = hoy.toISOString().split('T')[0];
-
-        actualizarTodo();
-        
-        [liqTrabajador, fDesde, fHasta].forEach(elem => {
-            elem.addEventListener('change', procesarLiquidacion);
-        });
-        
-        selectTrabajador.addEventListener('change', mostrarTarifaVigenteAlVuelo);
-        document.getElementById('fecha-jornada').addEventListener('change', mostrarTarifaVigenteAlVuelo);
-    });
-
-    function setFechaHoyInput() {
-        document.getElementById('fecha-jornada').value = new Date().toISOString().split('T')[0];
-    }
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
-    }
-
-    formTrabajador.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const nombre = document.getElementById('nombre-trabajador').value.trim();
-        const tipo = document.getElementById('tipo-trabajador').value;
-        const precio = parseFloat(document.getElementById('precio-hora').value);
-        const hoyIso = new Date().toISOString().split('T')[0];
-
-        let index = listaTrabajadores.findIndex(t => t.nombre.toLowerCase() === nombre.toLowerCase());
-
-        if (index > -1) {
-            listaTrabajadores[index].tipo = tipo;
-            listaTrabajadores[index].tarifas.push({ fechaCambio: hoyIso, precio: precio });
-            alert(`Ficha actualizada para ${nombre}. Nueva tarifa configurada.`);
-        } else {
-            listaTrabajadores.push({
-                nombre,
-                tipo,
-                tarifas: [{ fechaCambio: '1970-01-01', precio: precio }]
-            });
-            alert(`Trabajador ${nombre} dado de alta.`);
-        }
-
-        localStorage.setItem('trabajadores_v2', JSON.stringify(listaTrabajadores));
-        formTrabajador.reset();
-        actualizarTodo();
-    });
-
-    formHoras.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const fecha = document.getElementById('fecha-jornada').value;
-        const nombreTrabajador = selectTrabajador.value;
-        const entrada = document.getElementById('hora-entrada').value;
-        const salida = document.getElementById('hora-salida').value;
-
-        if(!nombreTrabajador) return;
-
-        const tInfo = listaTrabajadores.find(t => t.nombre === nombreTrabajador);
-        const tarifa = buscarTarifaPorFecha(tInfo, fecha);
-        const horas = calcularDiferenciaHorasNocturnas(entrada, salida);
-        const importe = horas * tarifa;
-
-        registroHoras.push({
-            id: Date.now() + Math.random().toString(36).substr(2, 5),
-            fecha,
-            trabajador: nombreTrabajador,
-            tipo: tInfo.tipo,
-            entrada,
-            salida,
-            totalHoras: horas.toFixed(2),
-            tarifaAplicada: tarifa.toFixed(2),
-            importe: importe.toFixed(2),
-            liquidada: false,
-            fechaPago: ''
-        });
-
-        localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
-        
-        formHoras.reset();
-        setFechaHoyInput(); 
-        labelTarifa.textContent = "Tarifa aplicable: —";
-        
-        actualizarTodo();
-    });
-
-    function buscarTarifaPorFecha(trabajador, fechaBusqueda) {
-        let historico = [...trabajador.tarifas].sort((a,b) => a.fechaCambio.localeCompare(b.fechaCambio));
-        let tarifaAplicable = historico[0].precio;
-        for(let t of historico) {
-            if(fechaBusqueda >= t.fechaCambio) {
-                tarifaAplicable = t.precio;
-            } else {
-                break;
-            }
-        }
-        return tarifaAplicable;
-    }
-
-    function mostrarTarifaVigenteAlVuelo() {
-        const nombre = selectTrabajador.value;
-        const fecha = document.getElementById('fecha-jornada').value;
-        if(!nombre || !fecha) {
-            labelTarifa.textContent = "Tarifa aplicable: —";
-            return;
-        }
-        const tInfo = listaTrabajadores.find(t => t.nombre === nombre);
-        const tarifa = buscarTarifaPorFecha(tInfo, fecha);
-        labelTarifa.innerHTML = `Tarifa en esta fecha: <strong>${tarifa.toFixed(2)} €/h</strong>`;
-    }
-
-    function calcularDiferenciaHorasNocturnas(start, end) {
-        const [hStart, mStart] = start.split(':').map(Number);
-        const [hEnd, mEnd] = end.split(':').map(Number);
-        let dStart = new Date(0, 0, 0, hStart, mStart);
-        let dEnd = new Date(0, 0, 0, hEnd, mEnd);
-        if (dEnd < dStart) dEnd.setDate(dEnd.getDate() + 1);
-        return (dEnd - dStart) / (1000 * 60 * 60);
-    }
-
-    function actualizarTodo() {
-        actualizarSelectores();
-        renderTablasBase();
-        procesarLiquidacion();
-    }
-
-    function actualizarSelectores() {
-        const selPrevia = selectTrabajador.value;
-        const liqPrevia = liqTrabajador.value;
-
-        selectTrabajador.innerHTML = '<option value="">-- Seleccione --</option>';
-        liqTrabajador.innerHTML = '<option value="">-- Todos los trabajadores --</option>';
-
-        listaTrabajadores.forEach(t => {
-            const ultimaTarifa = t.tarifas[t.tarifas.length - 1].precio;
-            let opt = document.createElement('option');
-            opt.value = t.nombre;
-            opt.textContent = `${t.nombre} [${t.tipo}] (${ultimaTarifa.toFixed(2)}€/h)`;
-            selectTrabajador.appendChild(opt.cloneNode(true));
-            liqTrabajador.appendChild(opt);
-        });
-
-        selectTrabajador.value = selPrevia;
-        liqTrabajador.value = liqPrevia;
-    }
-
-    function renderTablasBase() {
-        const tbodyPers = document.querySelector('#tabla-personal tbody');
-        tbodyPers.innerHTML = '';
-        if(listaTrabajadores.length === 0) {
-            tbodyPers.innerHTML = '<tr><td colspan="3" class="no-data">Sin personal activo</td></tr>';
-        } else {
-            listaTrabajadores.forEach(t => {
-                const badgeClass = t.tipo === 'Contratado' ? 'badge-contratado' : 'badge-externo';
-                const ultTarifa = t.tarifas[t.tarifas.length - 1].precio;
-                tbodyPers.insertAdjacentHTML('beforeend', `<tr>
-                    <td><strong>${t.nombre}</strong></td>
-                    <td><span class="badge ${badgeClass}">${t.tipo}</span></td>
-                    <td><strong>${ultTarifa.toFixed(2)} €</strong></td>
-                </tr>`);
-            });
-        }
-
-        const tbodyHoras = document.querySelector('#tabla-horas tbody');
-        tbodyHoras.innerHTML = '';
-        if(registroHoras.length === 0) {
-            tbodyHoras.innerHTML = '<tr><td colspan="7" class="no-data">No se registran jornadas</td></tr>';
-        } else {
-            [...registroHoras].reverse().slice(0, 15).forEach(h => {
-                const badgeTipo = h.tipo === 'Contratado' ? 'badge-contratado' : 'badge-externo';
-                const badgeLiq = h.liquidada ? 'badge-liquidada' : 'badge-pendiente';
-                const txtLiq = h.liquidada ? (h.fechaPago ? `Liquidada (${h.fechaPago})` : 'Liquidada') : 'Pendiente';
-                const fEs = h.fecha.split('-').reverse().join('/');
-
-                tbodyHoras.insertAdjacentHTML('beforeend', `<tr>
-                    <td>${fEs}</td>
-                    <td class="row-eliminable" title="Doble clic para borrar" data-delete-id="${h.id}">
-                        <strong>${h.trabajador}</strong> <span class="badge ${badgeTipo}">${h.tipo}</span>
-                    </td>
-                    <td>${h.entrada} - ${h.salida}</td>
-                    <td><strong>${h.totalHoras} h</strong></td>
-                    <td>${h.tarifaAplicada} €</td>
-                    <td><strong>${h.importe} €</strong></td>
-                    <td><span class="badge ${badgeLiq}">${txtLiq}</span></td>
-                </tr>`);
-            });
-        }
-        vincularEventosDobleClic();
-    }
-
-    function vincularEventosDobleClic() {
-        document.querySelectorAll('.row-eliminable').forEach(celda => {
-            celda.addEventListener('dblclick', function() {
-                const idRegistro = this.getAttribute('data-delete-id');
-                eliminarRegistroLinea(idRegistro);
-            });
-        });
-    }
-
-    function eliminarRegistroLinea(id) {
-        const pin = prompt("🔐 Introduzca la clave de seguridad para eliminar esta jornada:");
-        if (pin === null) return; 
-
-        if (pin === "1234") {
-            const index = registroHoras.findIndex(h => h.id === id);
-            if (index > -1) {
-                registroHoras.splice(index, 1);
-                localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
-                alert("Línea eliminada correctamente.");
-                actualizarTodo();
-            }
-        } else {
-            alert("❌ Clave incorrecta. No se ha modificado ningún dato.");
-        }
-    }
-
-    function procesarLiquidacion() {
-        const trabFiltro = liqTrabajador.value;
-        const desde = fDesde.value;
-        const hasta = fHasta.value;
-
-        filtradosActuales = registroHoras.filter(h => {
-            const matchesTrabajador = !trabFiltro || h.trabajador === trabFiltro;
-            const matchesDesde = !desde || h.fecha >= desde;
-            const matchesHasta = !hasta || h.fecha <= hasta;
-            return matchesTrabajador && matchesDesde && matchesHasta;
-        });
-
-        let totHoras = 0;
-        let totImporte = 0;
-
-        const tbodyLiq = document.querySelector('#tabla-liquidaciones tbody');
-        tbodyLiq.innerHTML = '';
-        document.getElementById('chk-master').checked = false;
-
-        if(filtradosActuales.length === 0) {
-            tbodyLiq.innerHTML = '<tr><td colspan="7" class="no-data">Ninguna jornada en este rango</td></tr>';
-        } else {
-            filtradosActuales.forEach(h => {
-                totHoras += parseFloat(h.totalHoras);
-                totImporte += parseFloat(h.importe);
-
-                const fEs = h.fecha.split('-').reverse().join('/');
-                const badgeLiq = h.liquidada ? 'badge-liquidada' : 'badge-pendiente';
-                const txtLiq = h.liquidada ? (h.fechaPago ? `Liquidada (${h.fechaPago})` : 'Liquidada') : 'Pendiente';
-                const chkDisabled = h.liquidada ? 'disabled checked' : '';
-
-                tbodyLiq.insertAdjacentHTML('beforeend', `<tr>
-                    <td class="chk-col"><input type="checkbox" class="chk-item" data-id="${h.id}" ${chkDisabled}></td>
-                    <td>${fEs}</td>
-                    <td><strong>${h.trabajador}</strong></td>
-                    <td>${h.totalHoras} h</td>
-                    <td>${h.tarifaAplicada} €</td>
-                    <td><strong>${h.importe} €</strong></td>
-                    <td><span class="badge ${badgeLiq}">${txtLiq}</span></td>
-                </tr>`);
-            });
-        }
-
-        document.getElementById('res-horas').textContent = totHoras.toFixed(2) + ' h';
-        document.getElementById('res-importe').textContent = totImporte.toFixed(2) + ' €';
-
-        vincularManejadorChecks();
-    }
-
-    function vincularManejadorChecks() {
-        const master = document.getElementById('chk-master');
-        const items = document.querySelectorAll('.chk-item:not([disabled])');
-        master.onclick = function() {
-            items.forEach(chk => chk.checked = master.checked);
-        };
-    }
-
-    document.getElementById('btn-marcar-liquidado').onclick = function() {
-        const seleccionados = document.querySelectorAll('.chk-item:checked:not([disabled])');
-        if(seleccionados.length === 0) {
-            alert('Selecciona jornadas pendientes para marcar como liquidadas.');
-            return;
-        }
-
-        const hoy = new Date().toISOString().split('T')[0].split('-').reverse().join('/');
-        const fechaInput = prompt(`¿Marcar como liquidadas estas ${seleccionados.length} jornadas? \n\nIntroduce la fecha de pago (DD/MM/AAAA):`, hoy);
-        
-        if (fechaInput === null) return; // Cancelar acción si pulsa cancelar
-
-        const fechaPago = fechaInput.trim() || hoy;
-
-        seleccionados.forEach(chk => {
-            const idBuscar = chk.getAttribute('data-id');
-            let registro = registroHoras.find(h => h.id === idBuscar);
-            if(registro) {
-                registro.liquidada = true;
-                registro.fechaPago = fechaPago;
-            }
-        });
-        localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
-        actualizarTodo();
-    };
-
-    // RECIBO ULTRA-SIMPLE EN VENTANA INDEPENDIENTE
-    document.getElementById('btn-imprimir-recibo').onclick = function() {
-        const trabajadorSeleccionado = liqTrabajador.value;
-        if (!trabajadorSeleccionado) {
-            alert("Por favor, selecciona un trabajador específico para emitir el recibo.");
-            return;
-        }
-        if (filtradosActuales.length === 0) {
-            alert("No hay registros que imprimir.");
-            return;
-        }
-
-        let sumaHoras = 0;
-        let sumaImporte = 0;
-        let filasHtml = '';
-
-        filtradosActuales.forEach(h => {
-            sumaHoras += parseFloat(h.totalHoras);
-            sumaImporte += parseFloat(h.importe);
-            const fEs = h.fecha.split('-').reverse().join('/');
-            filasHtml += `
-                <tr>
-                    <td style="border: 1px solid #000; padding: 6px;">${fEs}</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: right;">${h.totalHoras} h</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: right;">${h.tarifaAplicada} €/h</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: right; font-weight: bold;">${h.importe} €</td>
-                </tr>
-            `;
-        });
-
-        const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
-        ventanaImpresion.document.write(`
-            <html>
-            <head>
-                <title>Recibo - ${trabajadorSeleccionado}</title>
-                <style>
-                    body { font-family: monospace; padding: 20px; color: #000; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-                    th { border: 1px solid #000; padding: 6px; background-color: #eee; text-align: left; }
-                </style>
-            </head>
-            <body>
-                <h2 style="margin-bottom: 5px;">RECIBO DE LIQUIDACIÓN</h2>
-                <p><strong>Trabajador:</strong> ${trabajadorSeleccionado}</p>
-                <p><strong>Fecha Emisión:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
-                
                 <table>
                     <thead>
                         <tr>
                             <th>Fecha</th>
-                            <th style="text-align: right;">Horas</th>
-                            <th style="text-align: right;">Precio</th>
-                            <th style="text-align: right;">Total</th>
+                            <th>Tipo</th>
+                            <th>Nº Factura</th>
+                            <th>Corriente/No Cte.</th>
+                            <th>Medio Pago</th>
+                            <th>Importe</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${filasHtml}
-                        <tr style="background-color: #eee; font-weight: bold;">
-                            <td style="border: 1px solid #000; padding: 6px;">TOTALES:</td>
-                            <td style="border: 1px solid #000; padding: 6px; text-align: right;">${sumaHoras.toFixed(2)} h</td>
-                            <td style="border: 1px solid #000; padding: 6px;"></td>
-                            <td style="border: 1px solid #000; padding: 6px; text-align: right;">${sumaImporte.toFixed(2)} €</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tabla-ventas-cuerpo"></tbody>
                 </table>
-                <p style="margin-top: 30px; text-align: center;">* Documento simplificado de control interno *</p>
-                <script>
-                    window.onload = function() { window.print(); window.close(); }
-                <\/script>
-            </body>
-            </html>
-        `);
-        ventanaImpresion.document.close();
-    };
+            </div>
+        </section>
 
-    // EXPORTACIÓN EXCEL (FORMATO CSV)
-    document.getElementById('btn-exportar-excel').onclick = function() {
-        if (filtradosActuales.length === 0) {
-            alert("No hay datos en pantalla para exportar.");
-            return;
+        <!-- PESTAÑA: GASTOS -->
+        <section id="tab-gastos" class="tab-content">
+            <form id="form-gastos" class="form-grid" onsubmit="agregarGasto(event)">
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="gasto-fecha" required>
+                </div>
+                <div class="form-group">
+                    <label>Proveedor</label>
+                    <select id="gasto-proveedor" onchange="autoCompletarTipoProveedor()" required>
+                        <option value="">Selecciona...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Gasto (Auto)</label>
+                    <input type="text" id="gasto-tipo" readonly style="background-color: #e5e7eb;" placeholder="Se asigna solo">
+                </div>
+                <div class="form-group">
+                    <label>Importe (€)</label>
+                    <input type="number" step="0.01" id="gasto-importe" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Estado de Pago</label>
+                    <select id="gasto-estado">
+                        <option value="Pagado">Pagado</option>
+                        <option value="Pendiente" selected>Pendiente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Deducible</label>
+                    <select id="gasto-deducible">
+                        <option value="Deducible" selected>Sí (Deducible)</option>
+                        <option value="No Deducible">No Deducible</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-danger" style="width: 100%; height: 38px;">Añadir Gasto</button>
+            </form>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Proveedor</th>
+                            <th>Tipo</th>
+                            <th title="Haz doble clic en una celda para cambiar el estado">Estado (Doble Clic 🔄)</th>
+                            <th>Deducible</th>
+                            <th>Importe</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-gastos-cuerpo"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- PESTAÑA: PROVEEDORES -->
+        <section id="tab-proveedores" class="tab-content">
+            <form id="form-proveedores" class="form-grid" onsubmit="agregarProveedor(event)">
+                <div class="form-group">
+                    <label>Nombre del Proveedor</label>
+                    <input type="text" id="prov-nombre" placeholder="Ej: Endesa" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Suministro / Servicio</label>
+                    <select id="prov-tipo" required>
+                        <option value="" disabled selected>Selecciona tipo...</option>
+                        <option value="compras">compras</option>
+                        <option value="alquileres">alquileres</option>
+                        <option value="agua+basura">agua+basura</option>
+                        <option value="electricidad">electricidad</option>
+                        <option value="gas">gas</option>
+                        <option value="reparaciones">reparaciones</option>
+                        <option value="jardineros">jardineros</option>
+                        <option value="mantenimientos">mantenimientos</option>
+                        <option value="otras compras">otras compras</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="height: 38px;">Guardar Proveedor</button>
+            </form>
+
+            <div class="table-container" style="max-width: 600px; margin: 0 auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre Proveedor</th>
+                            <th>Tipo de Gasto</th>
+                            <th style="width: 100px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-proveedores-cuerpo"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- PESTAÑA: HORAS Y JORNADAS -->
+        <section id="tab-jornadas" class="tab-content">
+            <div class="local-card">
+                <h2>Imputación de Horas Realizadas</h2>
+                <form id="form-horas" onsubmit="agregarJornada(event)">
+                    <div class="grid-3-col">
+                        <div class="form-group">
+                            <label for="fecha-jornada">Fecha</label>
+                            <input type="date" id="fecha-jornada" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="select-trabajador">Trabajador</label>
+                            <select id="select-trabajador" class="form-control" required>
+                                <option value="">-- Seleccione --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label id="label-tarifa-informativa" style="color: #7f8c8d; font-weight: normal; margin-top: 22px; display: block; font-size: 0.9rem;">Tarifa aplicable: —</label>
+                        </div>
+                    </div>
+
+                    <div class="grid-3-col" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 10px;">
+                        <div class="form-group">
+                            <label for="hora-entrada">Hora Entrada</label>
+                            <input type="time" id="hora-entrada" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hora-salida">Hora Salida</label>
+                            <input type="time" id="hora-salida" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <button type="submit" class="btn btn-primary" style="height: 38px;">Grabar Jornada</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="local-card">
+                <h2>Últimos Registros del Historial (Vista Rápida)</h2>
+                <p style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px;">💡 *Tip: Si te has equivocado en una jornada, haz <strong>doble clic</strong> sobre el nombre del trabajador para borrar la línea (PIN requerido).*</p>
+                <div class="table-container">
+                    <table id="tabla-horas">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Trabajador (Tipo)</th>
+                                <th>Entrada/Salida</th>
+                                <th>Horas</th>
+                                <th>Tarifa</th>
+                                <th>Importe</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA: PERSONAL -->
+        <section id="tab-personal" class="tab-content">
+            <div class="grid-layout">
+                <div>
+                    <div class="local-card">
+                        <h2>Alta / Modificación de Tarifas</h2>
+                        <form id="form-trabajador" onsubmit="guardarFichaTrabajador(event)">
+                            <div class="form-group">
+                                <label for="nombre-trabajador">Nombre Completo</label>
+                                <input type="text" id="nombre-trabajador" class="form-control" placeholder="Ej. Juan Pérez" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tipo-trabajador">Tipo de Contratación</label>
+                                <select id="tipo-trabajador" class="form-control" required>
+                                    <option value="Contratado">Contratado (Interno)</option>
+                                    <option value="Externo">Externo (Subcontrata)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="precio-hora">Tarifa (€/Hora)</label>
+                                <input type="number" id="precio-hora" class="form-control" step="0.01" min="0" placeholder="Ej. 10.50" required>
+                            </div>
+                            <button type="submit" class="btn btn-accent" style="height: 38px;">Guardar Ficha / Tarifa</button>
+                        </form>
+                    </div>
+                </div>
+                <div>
+                    <div class="local-card">
+                        <h2>Lista de Personal y Tarifas Vigentes</h2>
+                        <div class="table-container">
+                            <table id="tabla-personal">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo de Contrato</th>
+                                        <th>Tarifa Activa</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA: LIQUIDACIONES -->
+        <section id="tab-liquidaciones" class="tab-content">
+            <div class="local-card">
+                <h2>Cierre Económico e Informe de Fechas</h2>
+                <div class="grid-3-col" style="margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label for="liq-trabajador">Filtrar por Trabajador</label>
+                        <select id="liq-trabajador" class="form-control" onchange="procesarLiquidaciones()">
+                            <option value="">-- Todos los trabajadores --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="liq-desde">Fecha Desde</label>
+                        <input type="date" id="liq-desde" class="form-control" onchange="procesarLiquidaciones()">
+                    </div>
+                    <div class="form-group">
+                        <label for="liq-hasta">Fecha Hasta</label>
+                        <input type="date" id="liq-hasta" class="form-control" onchange="procesarLiquidaciones()">
+                    </div>
+                </div>
+
+                <div class="grid-3-col" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 15px; align-items: center;">
+                    <div class="resumen-caja" id="resumen-valores">
+                        <span>Horas: <strong id="res-horas">0.00 h</strong></span>
+                        <span>Total: <strong id="res-importe">0.00 €</strong></span>
+                    </div>
+                    <div>
+                        <button type="button" id="btn-marcar-liquidado" class="btn btn-accent" style="height: 50px;" onclick="marcarComoLiquidadas()">✓ Liquidar Seleccionadas</button>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button type="button" class="btn btn-secondary" style="flex:1; height: 50px;" onclick="imprimirReciboSimple()">🖨️ Recibo Simple</button>
+                        <button type="button" class="btn btn-info" style="flex:1; height: 50px;" onclick="exportarExcelLiquidaciones()">📊 Excel (CSV)</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="tabla-liquidaciones">
+                        <thead>
+                            <tr>
+                                <th class="chk-col"><input type="checkbox" id="chk-master"></th>
+                                <th>Fecha</th>
+                                <th>Trabajador</th>
+                                <th>Horas</th>
+                                <th>Precio/H</th>
+                                <th>Subtotal</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- BASE DE DATOS LOCAL UNIFICADA ---
+        let appData = {
+            ventas: [],
+            gastos: [],
+            proveedores: [
+                { nombre: "Proveedor General", tipo: "compras" }
+            ],
+            // Datos migrados de la app de jornadas
+            trabajadores: [],
+            horas: []
+        };
+
+        let filtradosActualesLiquidaciones = [];
+
+        // Cargar datos al iniciar
+        window.onload = function() {
+            // Migrar o cargar desde local storage unificado
+            const dataGuardada = localStorage.getItem('app_contabilidad_jornadas_data');
+            if (dataGuardada) {
+                appData = JSON.parse(dataGuardada);
+            } else {
+                // Compatibilidad hacia atrás (si existen datos separados)
+                const legacyContabilidad = localStorage.getItem('app_contabilidad_data');
+                const legacyTrabajadores = localStorage.getItem('trabajadores_v2');
+                const legacyHoras = localStorage.getItem('horas_v2');
+
+                if(legacyContabilidad) appData = { ...appData, ...JSON.parse(legacyContabilidad) };
+                if(legacyTrabajadores) appData.trabajadores = JSON.parse(legacyTrabajadores);
+                if(legacyHoras) appData.horas = JSON.parse(legacyHoras);
+            }
+            
+            // Establecer fechas de hoy en formularios
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('venta-fecha').value = hoy;
+            document.getElementById('gasto-fecha').value = hoy;
+            document.getElementById('fecha-jornada').value = hoy;
+
+            // Rango por defecto para las liquidaciones (mes actual)
+            const hoyDate = new Date();
+            document.getElementById('liq-desde').value = new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('liq-hasta').value = hoy;
+
+            // Iniciar filtros contabilidad
+            reestablecerFechasFiltroContable();
+            actualizarTodo(); 
+
+            // Manejadores dinámicos para los cambios de tarifas al vuelo
+            document.getElementById('select-trabajador').addEventListener('change', mostrarTarifaVigenteAlVuelo);
+            document.getElementById('fecha-jornada').addEventListener('change', mostrarTarifaVigenteAlVuelo);
+        };
+
+        function reestablecerFechasFiltroContable() {
+            const añoActual = new Date().getFullYear();
+            document.getElementById('filtro-fecha-desde').value = `${añoActual}-01-01`;
+            document.getElementById('filtro-fecha-hasta').value = '';
         }
 
-        let csvContent = "\uFEFF"; 
-        csvContent += "Fecha;Trabajador;Horas Computadas;Precio Hora;Subtotal;Estado Actual\r\n";
+        function limpiarFiltrosContables() {
+            reestablecerFechasFiltroContable();
+            document.getElementById('filtro-corriente').value = 'todos';
+            document.getElementById('filtro-deducible').value = 'todos';
+            document.getElementById('filtro-estado-gasto').value = 'todos';
+            actualizarTodo();
+        }
 
-        filtradosActuales.forEach(h => {
-            const fEs = h.fecha.split('-').reverse().join('/');
-            const estado = h.liquidada ? (h.fechaPago ? `Liquidada (${h.fechaPago})` : "Liquidada") : "Pendiente";
-            csvContent += `${fEs};${h.trabajador};${h.totalHoras};${h.tarifaAplicada};${h.importe};${estado}\r\n`;
-        });
+        function guardarEnLocalStorage() {
+            localStorage.setItem('app_contabilidad_jornadas_data', JSON.stringify(appData));
+        }
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `Liquidacion_${liqTrabajador.value || 'General'}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+        // --- SISTEMA DE PESTAÑAS ---
+        function cambiarPestana(targetTab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-    // BACKUP: EXPORTAR JSON
-    document.getElementById('btn-exportar-backup').onclick = function() {
-        const dataCompleta = {
-            trabajadores: listaTrabajadores,
-            horas: registroHoras
-        };
+            event.target.classList.add('active');
+            document.getElementById(`tab-${targetTab}`).classList.add('active');
+        }
 
-        const jsonStr = JSON.stringify(dataCompleta, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
-        const downloadAnchor = document.createElement('a');
-        
-        downloadAnchor.href = URL.createObjectURL(blob);
-        downloadAnchor.setAttribute("download", `Backup_ControlHoras_${new Date().toISOString().split('T')[0]}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        document.body.removeChild(downloadAnchor);
-    };
+        // --- GESTIÓN DE PROVEEDORES ---
+        function agregarProveedor(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('prov-nombre').value.trim();
+            const tipo = document.getElementById('prov-tipo').value;
 
-    // BACKUP: RESTAURAR JSON
-    document.getElementById('input-importar-backup').onchange = function(event) {
-        const archivo = event.target.files[0];
-        if (!archivo) return;
-
-        const lector = new FileReader();
-        lector.onload = function(e) {
-            try {
-                const dataRestaurada = JSON.parse(e.target.result);
-                if (dataRestaurada.trabajadores && dataRestaurada.horas) {
-                    if (confirm("Se van a sobrescribir todos los datos actuales con esta copia de seguridad. ¿Desea continuar?")) {
-                        listaTrabajadores = dataRestaurada.trabajadores;
-                        registroHoras = dataRestaurada.horas;
-                        
-                        localStorage.setItem('trabajadores_v2', JSON.stringify(listaTrabajadores));
-                        localStorage.setItem('horas_v2', JSON.stringify(registroHoras));
-                        
-                        alert("Datos restaurados con éxito.");
-                        actualizarTodo();
-                    }
-                } else {
-                    alert("El archivo no tiene la estructura correcta.");
-                }
-            } catch (err) {
-                alert("Error al leer el archivo.");
+            if (appData.proveedores.some(p => p.nombre.toLowerCase() === nombre.toLowerCase())) {
+                alert("Este proveedor ya existe.");
+                return;
             }
-        };
-        lector.readAsText(archivo);
-    };
-</script>
 
+            appData.proveedores.push({ nombre, tipo });
+            guardarEnLocalStorage();
+            document.getElementById('form-proveedores').reset();
+            actualizarTodo();
+        }
+
+        function eliminarProveedor(index) {
+            if (confirm("¿Estás seguro de eliminar este proveedor?")) {
+                appData.proveedores.splice(index, 1);
+                guardarEnLocalStorage();
+                actualizarTodo();
+            }
+        }
+
+        function actualizarSelectorProveedores() {
+            const select = document.getElementById('gasto-proveedor');
+            if (select) {
+                select.innerHTML = '<option value="">Selecciona...</option>';
+                appData.proveedores.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.nombre;
+                    opt.textContent = p.nombre;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function autoCompletarTipoProveedor() {
+            const provSeleccionado = document.getElementById('gasto-proveedor').value;
+            const provData = appData.proveedores.find(p => p.nombre === provSeleccionado);
+            document.getElementById('gasto-tipo').value = provData ? provData.tipo : '';
+        }
+
+
+        // --- GESTIÓN DE VENTAS ---
+        function agregarVenta(e) {
+            e.preventDefault();
+            const nuevaVenta = {
+                id: Date.now(),
+                fecha: document.getElementById('venta-fecha').value,
+                tipo: document.getElementById('venta-tipo').value,
+                factura: document.getElementById('venta-factura').value,
+                metodoPago: document.getElementById('venta-metodo').value,
+                importe: parseFloat(document.getElementById('venta-importe').value),
+                corriente: document.getElementById('venta-corriente').value
+            };
+
+            appData.ventas.push(nuevaVenta);
+            guardarEnLocalStorage();
+            document.getElementById('venta-factura').value = '';
+            document.getElementById('venta-importe').value = '';
+            actualizarTodo();
+        }
+
+        function eliminarVenta(id) {
+            if (confirm("¿Deseas eliminar este ingreso de venta?")) {
+                appData.ventas = appData.ventas.filter(v => v.id !== id);
+                guardarEnLocalStorage();
+                actualizarTodo();
+            }
+        }
+
+
+        // --- GESTIÓN DE GASTOS CONTABLES ---
+        function agregarGasto(e) {
+            e.preventDefault();
+            const provName = document.getElementById('gasto-proveedor').value;
+            if(!provName) {
+                alert("Por favor selecciona un proveedor válido o regístralo primero en su pestaña.");
+                return;
+            }
+
+            const estado = document.getElementById('gasto-estado').value;
+            let fechaPago = '';
+            
+            if (estado === 'Pagado') {
+                fechaPago = document.getElementById('gasto-fecha').value.split('-').reverse().join('/');
+            }
+
+            const nuevoGasto = {
+                id: Date.now(),
+                fecha: document.getElementById('gasto-fecha').value,
+                proveedor: provName,
+                tipo: document.getElementById('gasto-tipo').value,
+                importe: parseFloat(document.getElementById('gasto-importe').value),
+                estado: estado,
+                fechaPago: fechaPago,
+                deducible: document.getElementById('gasto-deducible').value
+            };
+
+            appData.gastos.push(nuevoGasto);
+            guardarEnLocalStorage();
+            document.getElementById('gasto-importe').value = '';
+            actualizarTodo();
+        }
+
+        function eliminarGasto(id) {
+            if (confirm("¿Deseas eliminar este registro de gasto?")) {
+                appData.gastos = appData.gastos.filter(g => g.id !== id);
+                guardarEnLocalStorage();
+                actualizarTodo();
+            }
+        }
+
+        // --- CAMBIAR ESTADO DE PAGO CON DOBLE CLIC ---
+        function alternarEstadoPago(id) {
+            const gasto = appData.gastos.find(g => g.id === id);
+            if (!gasto) return;
+
+            if (gasto.estado === 'Pendiente') {
+                const hoy = new Date().toISOString().split('T')[0].split('-').reverse().join('/');
+                const fechaInput = prompt("Introduce la fecha de pago (DD/MM/AAAA):", hoy);
+                
+                if (fechaInput !== null) {
+                    gasto.estado = 'Pagado';
+                    gasto.fechaPago = fechaInput.trim() || hoy;
+                    guardarEnLocalStorage();
+                    actualizarTodo();
+                }
+            } else {
+                if (confirm(`¿Deseas cambiar el estado de este gasto de nuevo a 'Pendiente'?`)) {
+                    gasto.estado = 'Pendiente';
+                    gasto.fechaPago = '';
+                    guardarEnLocalStorage();
+                    actualizarTodo();
+                }
+            }
+        }
+
+        // --- GESTIÓN DE TRABAJADORES (PERSONAL) ---
+        function guardarFichaTrabajador(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre-trabajador').value.trim();
+            const tipo = document.getElementById('tipo-trabajador').value;
+            const precio = parseFloat(document.getElementById('precio-hora').value);
+            const hoyIso = new Date().toISOString().split('T')[0];
+
+            let index = appData.trabajadores.findIndex(t => t.nombre.toLowerCase() === nombre.toLowerCase());
+
+            if (index > -1) {
+                appData.trabajadores[index].tipo = tipo;
+                appData.trabajadores[index].tarifas.push({ fechaCambio: hoyIso, precio: precio });
+                alert(`Ficha de tarifas actualizada para ${nombre}.`);
+            } else {
+                appData.trabajadores.push({
+                    nombre,
+                    tipo,
+                    tarifas: [{ fechaCambio: '1970-01-01', precio: precio }]
+                });
+                alert(`Trabajador ${nombre} registrado con éxito.`);
+            }
+
+            guardarEnLocalStorage();
+            document.getElementById('form-trabajador').reset();
+            actualizarTodo();
+        }
+
+        function eliminarTrabajador(index) {
+            if(confirm("¿Estás seguro de que deseas eliminar la ficha de este trabajador? Sus jornadas registradas seguirán guardadas.")) {
+                appData.trabajadores.splice(index, 1);
+                guardarEnLocalStorage();
+                actualizarTodo();
+            }
+        }
+
+        function buscarTarifaPorFecha(trabajador, fechaBusqueda) {
+            let historico = [...trabajador.tarifas].sort((a,b) => a.fechaCambio.localeCompare(b.fechaCambio));
+            let tarifaAplicable = historico[0].precio;
+            for(let t of historico) {
+                if(fechaBusqueda >= t.fechaCambio) {
+                    tarifaAplicable = t.precio;
+                } else {
+                    break;
+                }
+            }
+            return tarifaAplicable;
+        }
+
+        function mostrarTarifaVigenteAlVuelo() {
+            const nombre = document.getElementById('select-trabajador').value;
+            const fecha = document.getElementById('fecha-jornada').value;
+            const labelTarifa = document.getElementById('label-tarifa-informativa');
+
+            if(!nombre || !fecha) {
+                labelTarifa.textContent = "Tarifa aplicable: —";
+                return;
+            }
+            const tInfo = appData.trabajadores.find(t => t.nombre === nombre);
+            if(!tInfo) return;
+            const tarifa = buscarTarifaPorFecha(tInfo, fecha);
+            labelTarifa.innerHTML = `Tarifa en esta fecha: <strong>${tarifa.toFixed(2)} €/h</strong>`;
+        }
+
+        function actualizarSelectoresPersonal() {
+            const selectJor = document.getElementById('select-trabajador');
+            const selectLiq = document.getElementById('liq-trabajador');
+            
+            const prevJorVal = selectJor.value;
+            const prevLiqVal = selectLiq.value;
+
+            selectJor.innerHTML = '<option value="">-- Seleccione --</option>';
+            selectLiq.innerHTML = '<option value="">-- Todos los trabajadores --</option>';
+
+            appData.trabajadores.forEach(t => {
+                const ultTarifa = t.tarifas[t.tarifas.length - 1].precio;
+                let opt = document.createElement('option');
+                opt.value = t.nombre;
+                opt.textContent = `${t.nombre} [${t.tipo}] (${ultTarifa.toFixed(2)} €/h)`;
+                selectJor.appendChild(opt.cloneNode(true));
+                selectLiq.appendChild(opt);
+            });
+
+            selectJor.value = prevJorVal;
+            selectLiq.value = prevLiqVal;
+        }
+
+
+        // --- GESTIÓN DE JORNADAS DE TRABAJO ---
+        function calcularDiferenciaHorasNocturnas(start, end) {
+            const [hStart, mStart] = start.split(':').map(Number);
+            const [hEnd, mEnd] = end.split(':').map(Number);
+            let dStart = new Date(0, 0, 0, hStart, mStart);
+            let dEnd = new Date(0, 0, 0, hEnd, mEnd);
+            if (dEnd < dStart) dEnd.setDate(dEnd.getDate() + 1);
+            return (dEnd - dStart) / (1000 * 60 * 60);
+        }
+
+        function agregarJornada(e) {
+            e.preventDefault();
+            const fecha = document.getElementById('fecha-jornada').value;
+            const nombreTrabajador = document.getElementById('select-trabajador').value;
+            const entrada = document.getElementById('hora-entrada').value;
+            const salida = document.getElementById('hora-salida').value;
+
+            if(!nombreTrabajador) return;
+
+            const tInfo = appData.trabajadores.find(t => t.nombre === nombreTrabajador);
+            const tarifa = buscarTarifaPorFecha(tInfo, fecha);
+            const horas = calcularDiferenciaHorasNocturnas(entrada, salida);
+            const importe = horas * tarifa;
+
+            appData.horas.push({
+                id: Date.now() + Math.random().toString(36).substr(2, 5),
+                fecha,
+                trabajador: nombreTrabajador,
+                tipo: tInfo.tipo,
+                entrada,
+                salida,
+                totalHoras: horas.toFixed(2),
+                tarifaAplicada: tarifa.toFixed(2),
+                importe: importe.toFixed(2),
+                liquidada: false
+            });
+
+            guardarEnLocalStorage();
+            document.getElementById('form-horas').reset();
+            
+            // Reestablecer fecha de hoy
+            document.getElementById('fecha-jornada').value = new Date().toISOString().split('T')[0];
+            document.getElementById('label-tarifa-informativa').textContent = "Tarifa aplicable: —";
+            
+            actualizarTodo();
+        }
+
+        function eliminarJornada(id) {
+            const pin = prompt("🔐 Introduzca la clave de seguridad (PIN) para eliminar esta jornada:");
+            if (pin === null) return; 
+
+            if (pin === "1234") {
+                const index = appData.horas.findIndex(h => h.id === id);
+                if (index > -1) {
+                    appData.horas.splice(index, 1);
+                    guardarEnLocalStorage();
+                    alert("Jornada laboral eliminada correctamente.");
+                    actualizarTodo();
+                }
+            } else {
+                alert("❌ Clave incorrecta. No se ha modificado ningún registro.");
+            }
+        }
+
+        function vincularEventosDobleClicHoras() {
+            document.querySelectorAll('.row-eliminable').forEach(celda => {
+                celda.addEventListener('dblclick', function() {
+                    const idRegistro = this.getAttribute('data-delete-id');
+                    eliminarJornada(idRegistro);
+                });
+            });
+        }
+
+
+        // --- LIQUIDACIONES DE TRABAJADORES ---
+        function procesarLiquidaciones() {
+            const trabFiltro = document.getElementById('liq-trabajador').value;
+            const desde = document.getElementById('liq-desde').value;
+            const hasta = document.getElementById('liq-hasta').value;
+
+            filtradosActualesLiquidaciones = appData.horas.filter(h => {
+                const matchesTrabajador = !trabFiltro || h.trabajador === trabFiltro;
+                const matchesDesde = !desde || h.fecha >= desde;
+                const matchesHasta = !hasta || h.fecha <= hasta;
+                return matchesTrabajador && matchesDesde && matchesHasta;
+            });
+
+            let totHoras = 0;
+            let totImporte = 0;
+
+            const tbodyLiq = document.querySelector('#tabla-liquidaciones tbody');
+            tbodyLiq.innerHTML = '';
+            document.getElementById('chk-master').checked = false;
+
+            if(filtradosActualesLiquidaciones.length === 0) {
+                tbodyLiq.innerHTML = '<tr><td colspan="7" class="no-data">Ninguna jornada en este rango para liquidar</td></tr>';
+            } else {
+                filtradosActualesLiquidaciones.forEach(h => {
+                    totHoras += parseFloat(h.totalHoras);
+                    totImporte += parseFloat(h.importe);
+
+                    const fEs = h.fecha.split('-').reverse().join('/');
+                    const badgeLiq = h.liquidada ? 'badge-liquidada' : 'badge-pendiente';
+                    const txtLiq = h.liquidada ? 'Liquidada' : 'Pendiente';
+                    const chkDisabled = h.liquidada ? 'disabled checked' : '';
+
+                    tbodyLiq.insertAdjacentHTML('beforeend', `<tr>
+                        <td class="chk-col"><input type="checkbox" class="chk-item" data-id="${h.id}" ${chkDisabled}></td>
+                        <td>${fEs}</td>
+                        <td><strong>${h.trabajador}</strong></td>
+                        <td>${h.totalHoras} h</td>
+                        <td>${parseFloat(h.tarifaAplicada).toLocaleString('es-ES', {minimumFractionDigits:2})} €</td>
+                        <td style="font-weight:600">${parseFloat(h.importe).toLocaleString('es-ES', {minimumFractionDigits:2})} €</td>
+                        <td><span class="badge ${badgeLiq}">${txtLiq}</span></td>
+                    </tr>`);
+                });
+            }
+
+            document.getElementById('res-horas').textContent = totHoras.toFixed(2) + ' h';
+            document.getElementById('res-importe').textContent = totImporte.toLocaleString('es-ES', {minimumFractionDigits: 2}) + ' €';
+
+            vincularManejadorChecks();
+        }
+
+        function vincularManejadorChecks() {
+            const master = document.getElementById('chk-master');
+            const items = document.querySelectorAll('.chk-item:not([disabled])');
+            master.onclick = function() {
+                items.forEach(chk => chk.checked = master.checked);
+            };
+        }
+
+        function marcarComoLiquidadas() {
+            const seleccionados = document.querySelectorAll('.chk-item:checked:not([disabled])');
+            if(seleccionados.length === 0) {
+                alert('Selecciona jornadas pendientes para marcar como liquidadas.');
+                return;
+            }
+
+            if(confirm(`¿Marcar como liquidadas estas ${seleccionados.length} jornadas?`)) {
+                seleccionados.forEach(chk => {
+                    const idBuscar = chk.getAttribute('data-id');
+                    let registro = appData.horas.find(h => h.id === idBuscar);
+                    if(registro) registro.liquidada = true;
+                });
+                guardarEnLocalStorage();
+                actualizarTodo();
+            }
+        }
+
+        function imprimirReciboSimple() {
+            const trabajadorSeleccionado = document.getElementById('liq-trabajador').value;
+            if (!trabajadorSeleccionado) {
+                alert("Por favor, selecciona un trabajador específico para emitir el recibo.");
+                return;
+            }
+            if (filtradosActualesLiquidaciones.length === 0) {
+                alert("No hay registros disponibles que coincidan con la búsqueda actual para imprimir.");
+                return;
+            }
+
+            let sumaHoras = 0;
+            let sumaImporte = 0;
+            let filasHtml = '';
+
+            filtradosActualesLiquidaciones.forEach(h => {
+                sumaHoras += parseFloat(h.totalHoras);
+                sumaImporte += parseFloat(h.importe);
+                const fEs = h.fecha.split('-').reverse().join('/');
+                filasHtml += `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 6px;">${fEs}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: right;">${h.totalHoras} h</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: right;">${parseFloat(h.tarifaAplicada).toLocaleString('es-ES', {minimumFractionDigits:2})} €/h</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: right; font-weight: bold;">${parseFloat(h.importe).toLocaleString('es-ES', {minimumFractionDigits:2})} €</td>
+                    </tr>
+                `;
+            });
+
+            const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
+            ventanaImpresion.document.write(`
+                <html>
+                <head>
+                    <title>Recibo - ${trabajadorSeleccionado}</title>
+                    <style>
+                        body { font-family: monospace; padding: 20px; color: #000; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                        th { border: 1px solid #000; padding: 6px; background-color: #eee; text-align: left; }
+                    </style>
+                </head>
+                <body>
+                    <h2 style="margin-bottom: 5px;">RECIBO DE LIQUIDACIÓN DE PERSONAL</h2>
+                    <p><strong>Trabajador:</strong> ${trabajadorSeleccionado}</p>
+                    <p><strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th style="text-align: right;">Horas</th>
+                                <th style="text-align: right;">Precio</th>
+                                <th style="text-align: right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filasHtml}
+                            <tr style="background-color: #eee; font-weight: bold;">
+                                <td style="border: 1px solid #000; padding: 6px;">TOTALES:</td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: right;">${sumaHoras.toFixed(2)} h</td>
+                                <td style="border: 1px solid #000; padding: 6px;"></td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: right;">${sumaImporte.toLocaleString('es-ES', {minimumFractionDigits: 2})} €</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 30px; text-align: center;">* Documento simplificado de control interno *</p>
+                    <script>
+                        window.onload = function() { window.print(); window.close(); }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            ventanaImpresion.document.close();
+        }
+
+
+        // --- ACTUALIZACIÓN DE INTERFAZ GENERAL Y TABLAS ---
+        function actualizarTodo() {
+            actualizarSelectorProveedores();
+            actualizarSelectoresPersonal();
+
+            // Capturar el valor exacto de los filtros del DOM en tiempo real
+            const filtroCte = document.getElementById('filtro-corriente').value;
+            const filtroDed = document.getElementById('filtro-deducible').value;
+            const filtroEstGasto = document.getElementById('filtro-estado-gasto').value;
+            const filtroDesde = document.getElementById('filtro-fecha-desde').value;
+            const filtroHasta = document.getElementById('filtro-fecha-hasta').value;
+
+            // --- PROCESAMIENTO VENTAS ---
+            let totalVentas = 0;
+            const tbodyVentas = document.getElementById('tabla-ventas-cuerpo');
+            tbodyVentas.innerHTML = '';
+
+            const ventasOrdenadas = [...appData.ventas].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+            ventasOrdenadas.forEach(v => {
+                const matchCte = (filtroCte === 'todos') || 
+                    (filtroCte === 'corriente' && v.corriente === 'Corriente') || 
+                    (filtroCte === 'nocorriente' && v.corriente === 'No Corriente');
+                
+                const matchFecha = (!filtroDesde || v.fecha >= filtroDesde) && 
+                    (!filtroHasta || v.fecha <= filtroHasta);
+                
+                if (matchCte && matchFecha) {
+                    totalVentas += v.importe;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${v.fecha.split('-').reverse().join('/')}</td>
+                        <td><span class="badge ${v.tipo === 'General' ? 'badge-secondary' : 'badge-warning'}">${v.tipo}</span></td>
+                        <td>${v.factura}</td>
+                        <td><span class="badge ${v.corriente === 'Corriente' ? 'badge-success' : 'badge-secondary'}">${v.corriente}</span></td>
+                        <td><span class="badge badge-secondary">${v.metodoPago || 'Efectivo'}</span></td>
+                        <td style="font-weight:600">${v.importe.toLocaleString('es-ES', {minimumFractionDigits: 2})} €</td>
+                        <td><button class="btn btn-danger" style="padding: 2px 6px; font-size: 0.75rem;" onclick="eliminarVenta(${v.id})">Borrar</button></td>
+                    `;
+                    tbodyVentas.appendChild(tr);
+                }
+            });
+
+            // --- PROCESAMIENTO GASTOS ---
+            let totalGastos = 0;
+            const tbodyGastos = document.getElementById('tabla-gastos-cuerpo');
+            tbodyGastos.innerHTML = '';
+
+            const gastosOrdenados = [...appData.gastos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+            gastosOrdenados.forEach(g => {
+                const matchDed = (filtroDed === 'todos') ||
+                    (filtroDed === 'deducible' && g.deducible === 'Deducible') ||
+                    (filtroDed === 'nodeducible' && g.deducible === 'No Deducible');
+
+                const matchEst = (filtroEstGasto === 'todos') || (g.estado === filtroEstGasto);
+
+                const matchFecha = (!filtroDesde || g.fecha >= filtroDesde) && 
+                    (!filtroHasta || g.fecha <= filtroHasta);
+
+                if (matchDed && matchEst && matchFecha) {
+                    totalGastos += g.importe;
+
+                    const badgePago = g.estado === 'Pagado' ? 'badge-success' : 'badge-warning';
+                    const badgeDed = g.deducible === 'Deducible' ? 'badge-success' : 'badge-danger';
+                    const estadoTexto = g.estado === 'Pagado' && g.fechaPago ? `${g.estado} (${g.fechaPago})` : g.estado;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${g.fecha.split('-').reverse().join('/')}</td>
+                        <td><strong>${g.proveedor}</strong></td>
+                        <td>${g.tipo}</td>
+                        <td ondblclick="alternarEstadoPago(${g.id})" class="double-click-hint" title="Doble clic para cambiar estado de pago">
+                            <span class="badge ${badgePago}">${estadoTexto} 🔄</span>
+                        </td>
+                        <td><span class="badge ${badgeDed}">${g.deducible}</span></td>
+                        <td style="font-weight:600; color: var(--danger-color);">${g.importe.toLocaleString('es-ES', {minimumFractionDigits: 2})} €</td>
+                        <td><button class="btn btn-danger" style="padding: 2px 6px; font-size: 0.75rem;" onclick="eliminarGasto(${g.id})">Borrar</button></td>
+                    `;
+                    tbodyGastos.appendChild(tr);
+                }
+            });
+
+            // --- TABLA PROVEEDORES CONTABLES ---
+            const tbodyProv = document.getElementById('tabla-proveedores-cuerpo');
+            tbodyProv.innerHTML = '';
+            appData.proveedores.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${p.nombre}</strong></td>
+                    <td><span class="badge badge-secondary">${p.tipo}</span></td>
+                    <td><button class="btn btn-danger" style="padding: 2px 6px; font-size: 0.75rem;" onclick="eliminarProveedor(${idx})">Eliminar</button></td>
+                `;
+                tbodyProv.appendChild(tr);
+            });
+
+            // --- TABLA PERSONAL ---
+            const tbodyPers = document.querySelector('#tabla-personal tbody');
+            tbodyPers.innerHTML = '';
+            if (appData.trabajadores.length === 0) {
+                tbodyPers.innerHTML = '<tr><td colspan="4" class="no-data">Sin personal registrado</td></tr>';
+            } else {
+                appData.trabajadores.forEach((t, index) => {
+                    const badgeClass = t.tipo === 'Contratado' ? 'badge-contratado' : 'badge-externo';
+                    const ultTarifa = t.tarifas[t.tarifas.length - 1].precio;
+                    tbodyPers.insertAdjacentHTML('beforeend', `<tr>
+                        <td><strong>${t.nombre}</strong></td>
+                        <td><span class="badge ${badgeClass}">${t.tipo}</span></td>
+                        <td><strong>${ultTarifa.toFixed(2)} €/h</strong></td>
+                        <td><button class="btn btn-danger" style="padding: 2px 6px; font-size: 0.75rem;" onclick="eliminarTrabajador(${index})">Eliminar</button></td>
+                    </tr>`);
+                });
+            }
+
+            // --- HISTORIAL JORNADAS (ÚLTIMAS 15) ---
+            const tbodyHoras = document.querySelector('#tabla-horas tbody');
+            tbodyHoras.innerHTML = '';
+            if (appData.horas.length === 0) {
+                tbodyHoras.innerHTML = '<tr><td colspan="7" class="no-data">No se registran jornadas</td></tr>';
+            } else {
+                [...appData.horas].reverse().slice(0, 15).forEach(h => {
+                    const badgeTipo = h.tipo === 'Contratado' ? 'badge-contratado' : 'badge-externo';
+                    const badgeLiq = h.liquidada ? 'badge-liquidada' : 'badge-pendiente';
+                    const txtLiq = h.liquidada ? 'Liquidada' : 'Pendiente';
+                    const fEs = h.fecha.split('-').reverse().join('/');
+
+                    tbodyHoras.insertAdjacentHTML('beforeend', `<tr>
+                        <td>${fEs}</td>
+                        <td class="row-eliminable" title="Doble clic para borrar" data-delete-id="${h.id}">
+                            <strong>${h.trabajador}</strong> <span class="badge ${badgeTipo}">${h.tipo}</span>
+                        </td>
+                        <td>${h.entrada} - ${h.salida}</td>
+                        <td><strong>${h.totalHoras} h</strong></td>
+                        <td>${parseFloat(h.tarifaAplicada).toFixed(2)} €</td>
+                        <td><strong>${parseFloat(h.importe).toLocaleString('es-ES', {minimumFractionDigits: 2})} €</strong></td>
+                        <td><span class="badge ${badgeLiq}">${txtLiq}</span></td>
+                    </tr>`);
+                });
+            }
+
+            vincularEventosDobleClicHoras();
+            procesarLiquidaciones();
+
+            // --- ACTUALIZACIÓN DE DASHBOARD SUPERIOR ---
+            const resultadoNeto = totalVentas - totalGastos;
+            document.getElementById('dash-ingresos').textContent = totalVentas.toLocaleString('es-ES', {minimumFractionDigits: 2}) + " €";
+            document.getElementById('dash-gastos').textContent = totalGastos.toLocaleString('es-ES', {minimumFractionDigits: 2}) + " €";
+            
+            const dashResultado = document.getElementById('dash-resultado');
+            dashResultado.textContent = resultadoNeto.toLocaleString('es-ES', {minimumFractionDigits: 2}) + " €";
+            
+            if(resultadoNeto >= 0) {
+                dashResultado.className = "card-value text-success";
+            } else {
+                dashResultado.className = "card-value text-danger";
+            }
+        }
+
+
+        // --- COPIAS DE SEGURIDAD (RESPALDO COMPLETO DE AMBAS APLICACIONES) ---
+        function respaldarTodo() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            
+            const fechaHoy = new Date().toISOString().slice(0,10);
+            downloadAnchor.setAttribute("download", `Backup_General_Empresa_${fechaHoy}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function restaurarTodo(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    // Comprobación de integridad para admitir respaldos unificados o antiguos
+                    if (parsedData.ventas && parsedData.gastos && parsedData.proveedores) {
+                        appData.ventas = parsedData.ventas;
+                        appData.gastos = parsedData.gastos;
+                        appData.proveedores = parsedData.proveedores;
+                        appData.trabajadores = parsedData.trabajadores || [];
+                        appData.horas = parsedData.horas || [];
+
+                        guardarEnLocalStorage();
+                        actualizarTodo();
+                        alert("¡Backup unificado cargado con éxito!");
+                    } else {
+                        alert("El formato del archivo JSON no coincide con la arquitectura requerida.");
+                    }
+                } catch (err) {
+                    alert("Error leyendo el archivo.");
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+
+        // --- EXPORTAR A EXCEL (CONTABILIDAD GENERAL) ---
+        function exportarExcelContable() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM para acentos
+            
+            // Sección Ventas
+            csvContent += "REGISTRO DE VENTAS\r\n";
+            csvContent += "Fecha;Tipo de Venta;Nº Factura;Clasificación;Medio de Pago;Importe (€)\r\n";
+            appData.ventas.forEach(v => {
+                csvContent += `${v.fecha};${v.tipo};${v.factura};${v.corriente};${v.metodoPago || 'Efectivo'};${v.importe.toString().replace('.', ',')}\r\n`;
+            });
+
+            csvContent += "\r\n\r\n";
+
+            // Sección Gastos
+            csvContent += "REGISTRO DE GASTOS\r\n";
+            csvContent += "Fecha;Proveedor;Tipo de Gasto;Estado;Fecha Pago;Deducible;Importe (€)\r\n";
+            appData.gastos.forEach(g => {
+                csvContent += `${g.fecha};${g.proveedor};${g.tipo};${g.estado};${g.fechaPago || ''};${g.deducible};${g.importe.toString().replace('.', ',')}\r\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", encodedUri);
+            
+            const fechaHoy = new Date().toISOString().slice(0,10);
+            downloadAnchor.setAttribute("download", `Informe_Contable_${fechaHoy}.csv`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // --- EXPORTAR A EXCEL (LIQUIDACIONES TRABAJADOR ACTUAL) ---
+        function exportarExcelLiquidaciones() {
+            if (filtradosActualesLiquidaciones.length === 0) {
+                alert("No hay datos que exportar en la tabla de liquidaciones.");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // BOM para caracteres especiales
+            csvContent += "Fecha;Trabajador;Horas Computadas;Precio Hora (€);Subtotal (€);Estado Actual\r\n";
+
+            filtradosActualesLiquidaciones.forEach(h => {
+                const fEs = h.fecha.split('-').reverse().join('/');
+                const estado = h.liquidada ? "Liquidada" : "Pendiente";
+                csvContent += `${fEs};${h.trabajador};${h.totalHoras};${h.tarifaAplicada.replace('.', ',')};${h.importe.replace('.', ',')};${estado}\r\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            
+            const liqTrab = document.getElementById('liq-trabajador').value;
+            link.setAttribute("download", `Liquidacion_${liqTrab || 'General'}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
 </body>
 </html>
